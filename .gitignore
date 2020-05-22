@@ -1,0 +1,5 @@
+app
+*.swp
+*.test
+*.out
+.envrc

@@ -13,7 +13,7 @@ import "github.com/turnerlabs/kplclientgo"
 func main() {
 
   //create a client
-  kpl := NewKPLClient("127.0.0.1:3000", "my-kinesis-data-stream")
+  kpl := kplclientgo.NewKPLClient("127.0.0.1", "3000")
 
   //start it up
   err := kpl.Start()
@@ -28,4 +28,16 @@ func main() {
   }
 
 }
+```
+
+### development
+
+Requires:
+- Go 1.13
+- docker-compose
+
+To run tests
+
+```sh
+AWS_PROFILE=my-profile KINESIS_STREAM=my-stream go test
 ```
