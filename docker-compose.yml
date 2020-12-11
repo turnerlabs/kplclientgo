@@ -9,6 +9,5 @@ services:
       AWS_DEFAULT_REGION: us-east-1
       AWS_PROFILE: ${AWS_PROFILE}
       KINESIS_STREAM: ${KINESIS_STREAM}
-      DLQ_URL: ${DLQ_URL}
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro

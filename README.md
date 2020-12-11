@@ -39,5 +39,5 @@ Requires:
 To run tests
 
 ```sh
-AWS_PROFILE=my-profile KINESIS_STREAM=my-stream DLQ_URL=aws-sqs-url go test
+AWS_PROFILE=my-profile KINESIS_STREAM=my-stream go test
 ```
