@@ -1,4 +1,4 @@
-package kplclientgo 
+package kplclientgo
 
 import (
 	"fmt"
