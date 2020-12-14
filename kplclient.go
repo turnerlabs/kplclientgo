@@ -38,6 +38,11 @@ type KPLClient struct {
 func (c *KPLClient) Start() error {
 
 	if !c.Started {
+		if c.ErrPort != "" {
+			go c.processErrMessage()
+			time.Sleep(time.Second * 30)
+		}
+
 		address := fmt.Sprintf("%s:%s", c.Host, c.Port)
 		var err error
 		socket, err = net.Dial("tcp", address)
@@ -48,10 +53,6 @@ func (c *KPLClient) Start() error {
 		//synchronize records written across the socket
 		socketChannel = make(chan string)
 		go processChannel()
-
-		if c.ErrPort != "" {
-			c.processErrMessage()
-		}
 	}
 
 	c.Started = true
@@ -86,11 +87,14 @@ func (c *KPLClient) processErrMessage() {
 	// Close the listener when the application closes.
 	defer l.Close()
 
+	log.Println("Waiting for client connection")
 	conn, err := l.Accept()
 	if err != nil {
 		log.Println("Error accepting error connection: ", err.Error())
 		return
 	}
+
+	log.Println("Connection established")
 
 	for {
 		//Read from err to socket

@@ -1,7 +1,6 @@
 package kplclientgo
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -28,7 +27,8 @@ func TestHappy(t *testing.T) {
 }
 
 func TestNegative(t *testing.T) {
-
+	//Enabled it when testing for negative scenario. Pass invalid credential to AWS
+	t.SkipNow()
 	//give the test harness a chance to boot
 	time.Sleep(10 * time.Second)
 
@@ -36,7 +36,10 @@ func TestNegative(t *testing.T) {
 
 	c.ErrPort = ":3001"
 	c.ErrHandler = func(data string) {
-		fmt.Println("errObj:", data)
+		if data != "test" {
+			t.Error("Expected test", "Got", data)
+			t.Fail()
+		}
 	}
 
 	err := c.Start()
@@ -49,6 +52,6 @@ func TestNegative(t *testing.T) {
 		t.Error(err)
 	}
 
-	//wait before shutting down
-	time.Sleep(20 * time.Second)
+	//wait for kpl server to send the message via error channel
+	time.Sleep(time.Minute)
 }
