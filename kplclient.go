@@ -40,7 +40,6 @@ func (c *KPLClient) Start() error {
 	if !c.Started {
 		if c.ErrPort != "" {
 			go c.processErrMessage()
-			time.Sleep(time.Second * 30)
 		}
 
 		address := fmt.Sprintf("%s:%s", c.Host, c.Port)
