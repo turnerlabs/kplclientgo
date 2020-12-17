@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net"
-	"time"
 )
 
 var socket net.Conn
@@ -100,7 +99,6 @@ func (c *KPLClient) processErrMessage() {
 		content, err := Read(conn)
 		if err != nil {
 			log.Printf("Listener: Read error: %v", err)
-			time.Sleep(time.Millisecond)
 			continue
 		}
 
