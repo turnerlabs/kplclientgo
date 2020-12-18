@@ -2,12 +2,12 @@ package kplclientgo
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net"
+	"net/textproto"
+	"time"
 )
 
 var socket net.Conn
@@ -38,15 +38,15 @@ type KPLClient struct {
 func (c *KPLClient) Start() error {
 
 	if !c.Started {
-		if c.ErrPort != "" {
-			go c.processErrMessage()
-		}
-
 		address := fmt.Sprintf("%s:%s", c.Host, c.Port)
 		var err error
 		socket, err = net.Dial("tcp", address)
 		if err != nil {
 			return err
+		}
+
+		if c.ErrPort != "" {
+			go c.processErrMessage()
 		}
 
 		//synchronize records written across the socket
@@ -77,6 +77,7 @@ func processChannel() {
 }
 
 func (c *KPLClient) processErrMessage() {
+	time.Sleep(time.Second * 5)
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", c.ErrHost, c.ErrPort))
 	if err != nil {
 		fmt.Println("Error listening to error port:", err.Error())
@@ -86,7 +87,7 @@ func (c *KPLClient) processErrMessage() {
 	// Close the listener when the application closes.
 	defer conn.Close()
 
-	log.Println("Connection established")
+	log.Println("Error Socket Connection Established")
 
 	for {
 		//Read from err to socket
@@ -102,21 +103,9 @@ func (c *KPLClient) processErrMessage() {
 
 func Read(conn net.Conn) (string, error) {
 	reader := bufio.NewReader(conn)
-	var buffer bytes.Buffer
-	for {
-		ba, isPrefix, err := reader.ReadLine()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return "", err
-		}
-		buffer.Write(ba)
-		if !isPrefix {
-			break
-		}
-	}
-	return buffer.String(), nil
+	tp := textproto.NewReader(reader)
+	line, _ := tp.ReadLine()
+	return line, nil
 }
 
 //PutRecord sends a data record to the KPL server
