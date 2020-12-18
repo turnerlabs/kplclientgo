@@ -10,6 +10,5 @@ services:
       AWS_PROFILE: ${AWS_PROFILE}
       KINESIS_STREAM: ${KINESIS_STREAM}
       ERROR_SOCKET_PORT: ${ERROR_SOCKET_PORT}
-      ERROR_SOCKET_HOST: host.docker.internal:3001
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
