@@ -34,11 +34,15 @@ func TestNegative(t *testing.T) {
 
 	c := NewKPLClient("127.0.0.1", "3000")
 
-	c.ErrPort = ":3001"
+	c.ErrPort = "3001"
+	c.ErrHost = "127.0.0.1"
+	receivedBackMessage := false
 	c.ErrHandler = func(data string) {
-		if data != "test" {
+		receivedBackMessage = true
+		t.Log("received", data)
+		if "test" != data {
 			t.Error("Expected test", "Got", data)
-			t.Fail()
+			t.FailNow()
 		}
 	}
 
@@ -54,4 +58,8 @@ func TestNegative(t *testing.T) {
 
 	//wait for kpl server to send the message via error channel
 	time.Sleep(time.Minute)
+	if receivedBackMessage != true {
+		t.Log("Did not receive the message")
+		t.FailNow()
+	}
 }
