@@ -78,10 +78,10 @@ func processChannel() {
 
 func (c *KPLClient) processErrMessage() {
 	for {
-		time.Sleep(time.Second)
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", c.ErrHost, c.ErrPort))
 		if err != nil {
 			fmt.Println("Error listening to error port:", err.Error())
+			time.Sleep(time.Second)
 			continue
 		}
 
