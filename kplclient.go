@@ -77,27 +77,28 @@ func processChannel() {
 }
 
 func (c *KPLClient) processErrMessage() {
-	time.Sleep(time.Second * 5)
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", c.ErrHost, c.ErrPort))
-	if err != nil {
-		fmt.Println("Error listening to error port:", err.Error())
-		return
-	}
-
-	// Close the listener when the application closes.
-	defer conn.Close()
-
-	log.Println("Error Socket Connection Established")
-
 	for {
-		//Read from err to socket
-		content, err := Read(conn)
+		time.Sleep(time.Second)
+		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", c.ErrHost, c.ErrPort))
 		if err != nil {
-			log.Printf("Listener: Read error: %v", err)
+			fmt.Println("Error listening to error port:", err.Error())
 			continue
 		}
 
-		go c.ErrHandler(content)
+		log.Println("Error Socket Connection Established")
+
+		for {
+			//Read from err to socket
+			content, err := Read(conn)
+			if err != nil {
+				log.Printf("Listener: Read error: %v", err)
+				break
+			}
+
+			go c.ErrHandler(content)
+		}
+
+		conn.Close()
 	}
 }
 
