@@ -29,6 +29,7 @@ type KPLClient struct {
 	// on this port and retrieve any error.
 	// Provide ErrHandler if ErrPort is set.
 	ErrPort    string
+	ErrHost    string
 	ErrHandler func(data string)
 	Started    bool
 }
@@ -76,21 +77,14 @@ func processChannel() {
 }
 
 func (c *KPLClient) processErrMessage() {
-	l, err := net.Listen("tcp", c.ErrPort)
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", c.ErrHost, c.ErrPort))
 	if err != nil {
 		fmt.Println("Error listening to error port:", err.Error())
 		return
 	}
 
 	// Close the listener when the application closes.
-	defer l.Close()
-
-	log.Println("Waiting for client connection")
-	conn, err := l.Accept()
-	if err != nil {
-		log.Println("Error accepting error connection: ", err.Error())
-		return
-	}
+	defer conn.Close()
 
 	log.Println("Connection established")
 
