@@ -104,8 +104,7 @@ func (c *KPLClient) processErrMessage() {
 func Read(conn net.Conn) (string, error) {
 	reader := bufio.NewReader(conn)
 	tp := textproto.NewReader(reader)
-	line, _ := tp.ReadLine()
-	return line, nil
+	return tp.ReadLine()
 }
 
 //PutRecord sends a data record to the KPL server
