@@ -10,9 +10,6 @@ import (
 	"time"
 )
 
-var socket net.Conn
-var socketChannel chan string
-
 //NewKPLClient returns a new KPLClient
 func NewKPLClient(host, port string) *KPLClient {
 	return &KPLClient{
@@ -28,10 +25,12 @@ type KPLClient struct {
 	// ErrPort is the optional field, which is provided, will cause a server to start and
 	// on this port and retrieve any error.
 	// Provide ErrHandler if ErrPort is set.
-	ErrPort    string
-	ErrHost    string
-	ErrHandler func(data string)
-	Started    bool
+	ErrPort       string
+	ErrHost       string
+	ErrHandler    func(data string)
+	Started       bool
+	Socket        net.Conn
+	SocketChannel chan string
 }
 
 //Start starts up a communication channel to the server
@@ -40,7 +39,7 @@ func (c *KPLClient) Start() error {
 	if !c.Started {
 		address := fmt.Sprintf("%s:%s", c.Host, c.Port)
 		var err error
-		socket, err = net.Dial("tcp", address)
+		c.Socket, err = net.Dial("tcp", address)
 		if err != nil {
 			return err
 		}
@@ -50,10 +49,9 @@ func (c *KPLClient) Start() error {
 		}
 
 		//synchronize records written across the socket
-		socketChannel = make(chan string)
-		go processChannel()
+		c.SocketChannel = make(chan string)
+		go processChannel(c.Socket, c.SocketChannel)
 	}
-
 	c.Started = true
 	return nil
 }
@@ -61,11 +59,11 @@ func (c *KPLClient) Start() error {
 //Stop shutsdown the communication channel to the server
 func (c *KPLClient) Stop() {
 	if c.Started {
-		socket.Close()
+		c.Socket.Close()
 	}
 }
 
-func processChannel() {
+func processChannel(socket net.Conn, socketChannel chan string) {
 	for {
 
 		//read record from channel
@@ -113,6 +111,6 @@ func (c *KPLClient) PutRecord(record string) error {
 	if !c.Started {
 		return errors.New("client is not started")
 	}
-	go func() { socketChannel <- record }()
+	go func() { c.SocketChannel <- record }()
 	return nil
 }
